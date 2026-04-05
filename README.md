@@ -1,10 +1,28 @@
 # publication-archive
 
-Tools for downloading and indexing magazine and book PDFs from online archives,
-making them searchable and queryable via grep or an AI assistant.
+A **personal digital library** toolkit for building a local, searchable corpus of scanned publications —
+magazines, books, and periodicals from online archives.
 
-Originally built around [World Radio History](https://www.worldradiohistory.com),
-but the tools work with any collection of PDFs that have an OCR text layer.
+Once built, the library is navigable by grep, by hand, or by any AI assistant. An AI with access to the
+indexed corpus can act as an informed librarian immediately — searching, cross-referencing, and surfacing
+insights across thousands of pages.
+
+> See [`LIBRARIAN.md`](LIBRARIAN.md) for the AI orientation guide.
+
+---
+
+## How it works
+
+1. **Download** — scrape PDF links from an archive page and download them locally
+2. **Convert** — extract OCR text and render each page as a PNG, producing searchable Markdown
+3. **Search** — grep, browse, or open the library in an AI-assisted editor and query in plain English
+4. **Record** — write research findings to `findings/` (gitignored; can sync via Dropbox or iCloud)
+
+The `collections/` directory holds your library. PDFs and indexed output are gitignored so no
+copyrighted material ever enters the repository. Collection metadata (`COLLECTION.md`) *is* tracked,
+so the shape of your library is version-controlled even if the contents are not.
+
+---
 
 ## Requirements
 
@@ -14,12 +32,16 @@ pip3 install pymupdf
 
 Python 3.10+. No other dependencies.
 
+---
+
 ## Tools
 
 | Script | Purpose |
 | --- | --- |
 | `download.py` | Scrape all PDF links from an archive page and download them |
 | `convert.py` | Convert a folder of PDFs to searchable Markdown with page images |
+
+---
 
 ## Workflow
 
@@ -57,12 +79,12 @@ python3 convert.py \
 Each PDF becomes a directory containing:
 
 - `content.md` — full OCR text with page images embedded inline
-- `index.md` — detected article/section titles
+- `index.md` — page-by-page article and section headings
 - `pages/page-NNN.png` — each page rendered at 200 DPI
 
 A master `index.md` is written to the output root linking all publications.
 
-### 4. Search
+### 4. Search and research
 
 ```bash
 # Find all publications mentioning a topic
@@ -72,45 +94,61 @@ grep -ril "VCA\|voltage controlled amplifier" collections/eti/indexed/
 grep -in -A3 "fuzz box" collections/*/indexed/*/content.md
 ```
 
-Or open the `indexed/` directory in an AI-assisted editor and query across the full archive in natural language.
+Or open the `collections/` directory in [Claude Code](https://claude.ai/code) (or any AI-assisted
+editor) and ask questions in plain English:
 
-### Querying with an AI assistant
-
-Once indexed, open your `collections/` directory in [Claude Code](https://claude.ai/code) (or any AI-assisted editor)
-and ask questions in plain English. For example, with a Hobby Electronics collection:
-
-> *"There's a Guitar Fuzz Box project in HE Magazine. Please find it for me."*
+> *"There's a Guitar Fuzz Box project in Hobby Electronics magazine. Please find it for me."*
 >
-> *"Can you open the Feb 1982 Noiseless Fuzz Box issue for me to see?"*
+> *"Are there any synthesiser projects across the whole collection?"*
 >
-> *"Are there any synthesiser projects?"*
+> *"What does the ETI Transcendent Polysynth series cover, and which issues should I read first?"*
 
-The AI can read `content.md` files, follow links to page images, and reason across hundreds of issues at once —
-turning a static archive into a searchable knowledge base.
+The AI reads `LIBRARIAN.md` and the collection index files to orient itself, then navigates freely.
 
-## Example collections
+### 5. Record findings
 
-The following collections from [World Radio History](https://www.worldradiohistory.com) have been tested with these tools:
+Write research outputs to `findings/` — topic references, cross-collection notes, article summaries.
+This folder is gitignored. To share findings across devices, make it a symlink to a cloud folder:
 
-| Collection | Source page | PDFs | Pages |
+```bash
+# Example: link findings to a Dropbox folder
+ln -s ~/Dropbox/my-library-findings findings
+```
+
+---
+
+## Library catalogue
+
+See [`CATALOGUE.md`](CATALOGUE.md) for all collections. Example collections tested with these tools:
+
+| Collection | Period | PDFs | Pages |
 | --- | --- | --- | --- |
-| Hobby Electronics (1978–1984) | [Hobby Electronics](https://www.worldradiohistory.com/Hobby_Electronics.htm) | 67 | ~5,000 |
-| ETI UK (1972–1999) | [ETI Magazine](https://www.worldradiohistory.com/ETI_Magazine.htm) | 367 | 27,328 |
-| Bernards/Babani BP Books | [Bernards & Babani Bookshelf](https://www.worldradiohistory.com/Bookshelf_Bernards_Babani.htm) | 111 | 16,153 |
+| [Hobby Electronics](collections/hobby-electronics/COLLECTION.md) | 1978–1984 | 67 | ~5,000 |
+| [ETI — Electronics Today International](collections/eti/COLLECTION.md) | 1972–1999 | 367 | 27,328 |
+| [Bernards/Babani BP Books](collections/bernards-babani/COLLECTION.md) | Various | 111 | 16,153 |
+
+---
 
 ## Using as a template
 
-Click **Use this template** on GitHub to create your own archive repository. Add your collections to the `collections/`
-directory — it is excluded by `.gitignore` so copyrighted content stays local.
+Click **Use this template** on GitHub to create your own library repository. The `collections/` PDFs
+and indexed output are excluded by `.gitignore`, but collection metadata (`COLLECTION.md` files) and
+research findings structure are tracked — so the shape of your library is preserved in version control.
+
+---
 
 ## Contributing
 
 Bug reports and enhancement requests are welcome via
 [GitHub Issues](https://github.com/ali5ter/publication-archive/issues).
 
+---
+
 ## Copyright notice
 
-PDFs and all converted output are derived from copyrighted material. This repository contains **only the scripts**.
-The `collections/` directory is excluded via `.gitignore` and must not be committed or redistributed.
+PDFs and all converted output are derived from copyrighted material. This repository contains
+**only the scripts and metadata**. Collection PDFs and indexed output are excluded via `.gitignore`
+and must not be committed or redistributed.
 
-Source PDFs can be downloaded from [World Radio History](https://www.worldradiohistory.com) for personal use.
+Source PDFs can be downloaded from [World Radio History](https://www.worldradiohistory.com) for
+personal use.

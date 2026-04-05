@@ -1,5 +1,9 @@
-# All collection data — copyright material, not for redistribution
-collections/
+# Collection PDFs and indexed output — copyright material, not for redistribution
+collections/*/pdfs
+collections/*/indexed
+
+# Research findings — personal, may be a cloud symlink
+findings/
 
 # Downloads in progress
 Downloads/
