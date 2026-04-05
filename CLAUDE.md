@@ -1,9 +1,15 @@
 # publication-archive — AI Context
 
+## Library orientation
+
+**Read [`LIBRARIAN.md`](LIBRARIAN.md) before navigating the collections.** It explains the library
+structure, how to find and read index files, how to search, and how to write findings.
+
 ## Purpose
 
-Tools for downloading and indexing magazine/book PDFs from online archives, making them searchable via AI or grep.
-Originally built for [World Radio History](https://www.worldradiohistory.com) but works with any collection of PDFs.
+A personal digital library toolkit. Downloads and indexes magazine/book PDFs from online archives into
+searchable Markdown with page images, making the corpus navigable by grep or AI assistant.
+Originally built for [World Radio History](https://www.worldradiohistory.com) but works with any PDF collection.
 
 ## Project layout
 
