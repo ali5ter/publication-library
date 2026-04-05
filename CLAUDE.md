@@ -12,17 +12,15 @@ searchable Markdown with page images, making the corpus navigable by grep or AI 
 Originally built for [World Radio History](https://www.worldradiohistory.com) but works with any PDF collection.
 
 GitHub repository: <https://github.com/ali5ter/publication-library>
-Local directory: `/Users/alister/Documents/Projects/publication-archive/`
-(Local directory name is unchanged; only the GitHub repo was renamed from publication-archive.)
 
 ## Project layout
 
 ```text
-publication-archive/
+publication-library/
 ├── collections/                  ← gitignored; local PDF archives and indexed output
 │   ├── hobby-electronics/
 │   │   ├── COLLECTION.md         ← tracked collection metadata
-│   │   ├── pdfs/                 ← symlink → Dropbox/Private/Home/Electronics/Magazines (67 PDFs)
+│   │   ├── pdfs/                 ← symlink to cloud storage (67 PDFs)
 │   │   └── indexed/              ← 67 issues, fully indexed (~5,000 pages)
 │   ├── eti/
 │   │   ├── COLLECTION.md
