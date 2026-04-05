@@ -16,7 +16,7 @@ Usage:
 
 Args:
     --analyze     Probe PDFs and report structure without converting
-    --input-dir   Directory containing PDFs (default: ./Magazines)
+    --input-dir   Directory containing PDFs (required)
     --output-dir  Output directory for markdown and images (default: ./converted)
     --pattern     Glob pattern to select PDFs (default: **/*.pdf)
     --dpi         Render resolution for page images (default: 200)
@@ -99,6 +99,41 @@ def parse_slug(filename: str) -> tuple[str, str]:
     slug = re.sub(r"[^\w\-]", "-", stem).strip("-").lower()
     slug = re.sub(r"-{2,}", "-", slug)
     return slug, stem
+
+
+def resolve_slugs(pdfs: list[Path]) -> dict[Path, str]:
+    """Build a path-to-slug mapping, disambiguating any collisions.
+
+    When multiple PDFs resolve to the same slug, appends the parent directory
+    name to each slug to make them unique.
+
+    @param pdfs: List of PDF paths to map
+    @return: Dict mapping each PDF path to its unique slug
+    @example:
+        # 70s/ETI-1985-08.pdf and 80s/ETI-1985-08.pdf both parse to "1985-08"
+        # resolve_slugs returns {70s/...: "1985-08-70s", 80s/...: "1985-08-80s"}
+    """
+    slug_to_paths: dict[str, list[Path]] = {}
+    for pdf_path in pdfs:
+        base_slug, _ = parse_slug(pdf_path.name)
+        slug_to_paths.setdefault(base_slug, []).append(pdf_path)
+
+    result: dict[Path, str] = {}
+    collision_found = False
+    for base_slug, paths in slug_to_paths.items():
+        if len(paths) == 1:
+            result[paths[0]] = base_slug
+        else:
+            if not collision_found:
+                print("WARNING: Slug collisions detected — disambiguating with parent directory name:")
+                collision_found = True
+            for path in sorted(paths):
+                disambig = f"{base_slug}-{path.parent.name}"
+                result[path] = disambig
+                print(f"  {path.name} → {disambig}")
+    if collision_found:
+        print()
+    return result
 
 
 def infer_publication_name(stem: str) -> str:
@@ -261,16 +296,19 @@ def render_page_png(page: fitz.Page, output_path: Path, dpi: int) -> None:
     pixmap.save(str(output_path))
 
 
-def convert_publication(pdf_path: Path, output_dir: Path, dpi: int, force: bool) -> dict:
+def convert_publication(pdf_path: Path, output_dir: Path, dpi: int, force: bool, slug_override: str | None = None) -> dict:
     """Convert a single PDF to markdown with rendered page images.
 
     @param pdf_path: Path to the source PDF
     @param output_dir: Root output directory
     @param dpi: Page render resolution
     @param force: Re-process even if output exists
+    @param slug_override: Optional pre-resolved slug (used when collision disambiguation is applied)
     @return: Dict with slug, title, pages, articles for index building
     """
     slug, label = parse_slug(pdf_path.name)
+    if slug_override is not None:
+        slug = slug_override
     pub_name = infer_publication_name(pdf_path.stem)
     title = f"{pub_name} — {label}"
 
@@ -416,7 +454,7 @@ def main() -> None:
         description="Convert archive PDFs (magazines, books) to searchable Markdown"
     )
     parser.add_argument("--analyze", action="store_true", help="Probe PDFs and report structure without converting")
-    parser.add_argument("--input-dir", type=Path, default=Path("Magazines"), help="Source PDF directory (default: ./Magazines)")
+    parser.add_argument("--input-dir", type=Path, required=True, help="Source PDF directory")
     parser.add_argument("--output-dir", type=Path, default=Path("converted"), help="Output directory (default: ./converted)")
     parser.add_argument("--pattern", default="**/*.pdf", help="Glob pattern to select PDFs (default: **/*.pdf)")
     parser.add_argument("--dpi", type=int, default=200, help="Page image render DPI (default: 200)")
@@ -442,10 +480,15 @@ def main() -> None:
     print(f"Output: {args.output_dir}  |  DPI: {args.dpi}")
     print()
 
+    slug_map = resolve_slugs(pdfs)
+
     all_pubs = []
     for i, pdf_path in enumerate(pdfs, 1):
         print(f"[{i}/{len(pdfs)}] {pdf_path.name}")
-        info = convert_publication(pdf_path, args.output_dir, args.dpi, args.force)
+        base_slug, _ = parse_slug(pdf_path.name)
+        resolved = slug_map[pdf_path]
+        override = resolved if resolved != base_slug else None
+        info = convert_publication(pdf_path, args.output_dir, args.dpi, args.force, slug_override=override)
         if info.get("slug"):
             write_publication_index(info, args.output_dir)
             all_pubs.append(info)
