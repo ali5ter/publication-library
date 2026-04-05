@@ -1,0 +1,11 @@
+# All collection data — copyright material, not for redistribution
+collections/
+
+# Downloads in progress
+Downloads/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
