@@ -18,7 +18,7 @@ Args:
     --analyze     Probe PDFs and report structure without converting
     --input-dir   Directory containing PDFs (default: ./Magazines)
     --output-dir  Output directory for markdown and images (default: ./converted)
-    --pattern     Glob pattern to select PDFs (default: *.pdf)
+    --pattern     Glob pattern to select PDFs (default: **/*.pdf)
     --dpi         Render resolution for page images (default: 200)
     --force       Re-process publications even if output already exists
 """
@@ -418,7 +418,7 @@ def main() -> None:
     parser.add_argument("--analyze", action="store_true", help="Probe PDFs and report structure without converting")
     parser.add_argument("--input-dir", type=Path, default=Path("Magazines"), help="Source PDF directory (default: ./Magazines)")
     parser.add_argument("--output-dir", type=Path, default=Path("converted"), help="Output directory (default: ./converted)")
-    parser.add_argument("--pattern", default="*.pdf", help="Glob pattern to select PDFs (default: *.pdf)")
+    parser.add_argument("--pattern", default="**/*.pdf", help="Glob pattern to select PDFs (default: **/*.pdf)")
     parser.add_argument("--dpi", type=int, default=200, help="Page image render DPI (default: 200)")
     parser.add_argument("--force", action="store_true", help="Re-process already-converted publications")
     args = parser.parse_args()

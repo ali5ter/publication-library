@@ -62,6 +62,9 @@ def extract_pdf_links(html: str, base_url: str) -> list[str]:
     absolute = set()
     for href in hrefs:
         full = urllib.parse.urljoin(base_url, href)
+        parsed = urllib.parse.urlparse(full)
+        encoded_path = urllib.parse.quote(parsed.path, safe='/:@!$&\'()*+,;=')
+        full = parsed._replace(path=encoded_path).geturl()
         absolute.add(full)
     return sorted(absolute)
 

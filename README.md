@@ -75,10 +75,11 @@ the full archive in natural language.
 
 ## Collections
 
-| Collection | Source | PDFs | Status |
-|------------|--------|------|--------|
-| Hobby Electronics (1978–1984) | [World Radio History](https://www.worldradiohistory.com/Hobby_Electronics.htm) | 67 | Indexed |
-| ETI UK (1972–1988) | [World Radio History](https://www.worldradiohistory.com/ETI_Magazine.htm) | 367 | Downloaded |
+| Collection | Source | PDFs | Pages | Status |
+|------------|--------|------|-------|--------|
+| Hobby Electronics (1978–1984) | [World Radio History](https://www.worldradiohistory.com/Hobby_Electronics.htm) | 67 | ~5,000 | Indexed |
+| ETI UK (1972–1999) | [World Radio History](https://www.worldradiohistory.com/ETI_Magazine.htm) | 367 | 27,328 | Indexed |
+| Bernards/Babani BP Books | [World Radio History](https://www.worldradiohistory.com/Bookshelf_Bernards_Babani.htm) | 111 | 16,153 | Indexed |
 
 ## Copyright notice
 
