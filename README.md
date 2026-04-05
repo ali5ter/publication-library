@@ -74,6 +74,20 @@ grep -in -A3 "fuzz box" collections/*/indexed/*/content.md
 
 Or open the `indexed/` directory in an AI-assisted editor and query across the full archive in natural language.
 
+### Querying with an AI assistant
+
+Once indexed, open your `collections/` directory in [Claude Code](https://claude.ai/code) (or any AI-assisted editor)
+and ask questions in plain English. For example, with a Hobby Electronics collection:
+
+> *"There's a Guitar Fuzz Box project in HE Magazine. Please find it for me."*
+>
+> *"Can you open the Feb 1982 Noiseless Fuzz Box issue for me to see?"*
+>
+> *"Are there any synthesiser projects?"*
+
+The AI can read `content.md` files, follow links to page images, and reason across hundreds of issues at once —
+turning a static archive into a searchable knowledge base.
+
 ## Example collections
 
 The following collections from [World Radio History](https://www.worldradiohistory.com) have been tested with these tools:
