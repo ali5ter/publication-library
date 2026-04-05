@@ -5,6 +5,9 @@ collections/*/indexed
 # Research findings — personal, may be a cloud symlink
 findings/
 
+# Instance-specific generated files
+CATALOGUE.md
+
 # Downloads in progress
 Downloads/
 

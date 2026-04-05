@@ -17,25 +17,19 @@ GitHub repository: <https://github.com/ali5ter/publication-library>
 
 ```text
 publication-library/
-├── collections/                  ← gitignored; local PDF archives and indexed output
-│   ├── hobby-electronics/
-│   │   ├── COLLECTION.md         ← tracked collection metadata
-│   │   ├── pdfs/                 ← symlink to cloud storage (67 PDFs)
-│   │   └── indexed/              ← 67 issues, fully indexed (~5,000 pages)
-│   ├── eti/
-│   │   ├── COLLECTION.md
-│   │   ├── pdfs/                 ← 367 PDFs (Archive-Electronics-Today/, UK/70s|80s|90s/)
-│   │   └── indexed/              ← 327 dirs, 27,328 pages
-│   └── bernards-babani/
-│       ├── COLLECTION.md
-│       ├── pdfs/                 ← 111 BP-numbered books
-│       └── indexed/              ← 111 dirs, 16,153 pages
-├── findings/                     ← gitignored; personal research outputs
+├── collections/                  ← local PDF archives and indexed output (gitignored)
+│   └── COLLECTION-NAME/
+│       ├── COLLECTION.md         ← collection metadata (local instance, not tracked in template)
+│       ├── pdfs/                 ← source PDFs (gitignored; may be a symlink to cloud storage)
+│       └── indexed/              ← converted output (gitignored)
+├── findings/                     ← personal research outputs (gitignored)
 ├── LIBRARIAN.md                  ← AI orientation guide (read this first)
-├── CATALOGUE.md                  ← master cross-collection index
-├── SYNTH_PROJECTS.md             ← research output: 60+ synth project references
+├── CATALOGUE.md                  ← master cross-collection index (local instance, generated)
+├── COLLECTION.md.example         ← template for writing COLLECTION.md files
 ├── download.py                   ← scrape and download PDFs from an archive page
 ├── convert.py                    ← convert PDFs → markdown + page PNGs
+├── search.py                     ← search across indexed collections with formatted output
+├── init-findings.sh              ← scaffold the findings/ directory
 ├── README.md
 ├── CLAUDE.md                     ← this file
 ├── AGENTS.md                     ← OpenAI Codex CLI context
@@ -49,11 +43,12 @@ publication-library/
 
 | Task | Location |
 | --- | --- |
-| All collections | `CATALOGUE.md` |
+| All collections | `CATALOGUE.md` (run `python3 convert.py --global-index collections/` to regenerate) |
 | Collection details | `collections/NAME/COLLECTION.md` |
 | Browse a collection | `collections/NAME/indexed/index.md` |
 | Scan an issue | `collections/NAME/indexed/SLUG/index.md` |
 | Read full text | `collections/NAME/indexed/SLUG/content.md` |
+| Search | `python3 search.py "term"` |
 | Write findings | `findings/` (gitignored) |
 
 ## Key design decisions
@@ -63,44 +58,36 @@ publication-library/
 - **Full-page PNGs at 200 DPI** — pages rendered as images (~1600×2250 px), sufficient to read component values in
   circuit diagrams.
 - **Idempotent conversion** — already-converted publications are skipped unless `--force` is passed.
-- **Recursive glob default** — `--pattern **/*.pdf` handles archive collections with decade subdirectories (e.g. ETI).
+- **Recursive glob default** — `--pattern **/*.pdf` handles archive collections with decade subdirectories.
 - **Slug detection** — flexible: year-month, volume, issue-number, bare-number, filename-stem fallback.
 - **`collections/` gitignored** — all copyrighted content (PDFs and derived output) stays local only.
-- **COLLECTION.md tracked** — collection metadata is version-controlled even though the corpus is not.
+- **COLLECTION.md local-only** — collection metadata belongs to the instance, not the template.
+- **CATALOGUE.md generated** — maintained by `convert.py --global-index`; gitignored in the template.
 - **Local-first corpus** — findings/ is gitignored; symlink to Dropbox/iCloud/Google Drive for cross-device access.
-- **GitHub template** — others can fork and build their own library using the same structure.
+- **GitHub template** — fork or use as template to build your own library using the same structure.
 
 ## Common commands
 
 ```bash
-# Probe a collection before converting
-python3 convert.py --analyze --input-dir collections/NAME/pdfs
+# Scaffold findings/ directory
+./init-findings.sh
 
 # Download from an archive page
 python3 download.py "https://www.worldradiohistory.com/PAGE.htm" --output-dir collections/NAME/pdfs
 
-# Convert
-python3 convert.py --input-dir collections/NAME/pdfs --output-dir collections/NAME/indexed
+# Probe a collection before converting
+python3 convert.py --analyze --input-dir collections/NAME/pdfs
+
+# Convert and auto-generate COLLECTION.md
+python3 convert.py --input-dir collections/NAME/pdfs --output-dir collections/NAME/indexed \
+  --write-collection-md
+
+# Regenerate the cross-collection catalogue
+python3 convert.py --global-index collections/
 
 # Search across all indexed collections
-grep -ril "topic" collections/*/indexed/
+python3 search.py "topic"
 ```
-
-## Known issues / gotchas
-
-- **#6 Bug:** Slug collisions in ETI silently overwrite decade subdir output (e.g. two files resolving to same slug).
-- **#7 Bug:** convert.py default `--input-dir` is stale (`./Magazines`) — always pass explicitly.
-- Non-ASCII characters in PDF filenames (e.g. `ñ`) require URL percent-encoding — handled in `download.py`.
-- Some archive collections use decade subdirectories (`70s/`, `80s/`, `90s/`); the recursive glob handles this.
-- Bernards/Babani B&B filter: keep files where filename contains BP+digits (bp107, Babani-BP105, Bernards-BP38).
-
-## Planned enhancements
-
-- **#8** Auto-generate COLLECTION.md after conversion
-- **#9** Cross-collection master index generator (to auto-maintain CATALOGUE.md)
-- **#10** findings/ scaffolding script
-- **#11** GitHub Actions CI for markdownlint
-- **#12** Search helper script with formatted output
 
 ## Contributing
 

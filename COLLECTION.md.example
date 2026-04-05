@@ -1,0 +1,36 @@
+# Collection Name
+
+Brief description of the publication — what it is, who published it, and what kind of content it contains.
+
+## Details
+
+| Field | Value |
+| --- | --- |
+| **Source** | [Archive Name](https://source-url) |
+| **Period** | Month YYYY – Month YYYY |
+| **Publications** | N issues / books |
+| **Pages** | N |
+| **Local PDFs** | `collections/NAME/pdfs/` |
+| **Indexed** | `collections/NAME/indexed/` |
+
+## Slug format
+
+Describe the slug pattern used for this collection (e.g. `YYYY-MM` for monthly magazines,
+`vol-N` for volumes, `BP-NNN` for numbered books).
+
+```text
+indexed/
+├── YYYY-MM/
+├── ...
+└── YYYY-MM/
+```
+
+## Coverage notes
+
+- Note any gaps, missing issues, or OCR quality variations.
+- Note any special filename patterns or filters applied during download.
+
+## Content character
+
+Describe the typical content: topics covered, project types, target audience, and anything useful
+for search and research.
