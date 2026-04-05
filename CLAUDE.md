@@ -62,4 +62,4 @@ grep -ril "topic" collections/*/indexed/
 
 ## Contributing
 
-Report bugs and request enhancements via [GitHub Issues](https://github.com/ali5ter/publication-archive/issues).
+Report bugs and request enhancements via [GitHub Issues](https://github.com/ali5ter/publication-library/issues).

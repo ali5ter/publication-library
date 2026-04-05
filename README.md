@@ -1,4 +1,4 @@
-# publication-archive
+# publication-library
 
 A **personal digital library** toolkit for building a local, searchable corpus of scanned publications —
 magazines, books, and periodicals from online archives.
@@ -16,7 +16,7 @@ insights across thousands of pages.
 1. **Download** — scrape PDF links from an archive page and download them locally
 2. **Convert** — extract OCR text and render each page as a PNG, producing searchable Markdown
 3. **Search** — grep, browse, or open the library in an AI-assisted editor and query in plain English
-4. **Record** — write research findings to `findings/` (gitignored; can sync via Dropbox or iCloud)
+4. **Record** — write research findings to `findings/` (gitignored; can sync via Dropbox, iCloud, or Google Drive)
 
 The `collections/` directory holds your library. PDFs and indexed output are gitignored so no
 copyrighted material ever enters the repository. Collection metadata (`COLLECTION.md`) *is* tracked,
@@ -94,8 +94,7 @@ grep -ril "VCA\|voltage controlled amplifier" collections/eti/indexed/
 grep -in -A3 "fuzz box" collections/*/indexed/*/content.md
 ```
 
-Or open the `collections/` directory in [Claude Code](https://claude.ai/code) (or any AI-assisted
-editor) and ask questions in plain English:
+Open the `collections/` directory in an AI-assisted editor and ask questions in plain English:
 
 > *"There's a Guitar Fuzz Box project in Hobby Electronics magazine. Please find it for me."*
 >
@@ -108,12 +107,64 @@ The AI reads `LIBRARIAN.md` and the collection index files to orient itself, the
 ### 5. Record findings
 
 Write research outputs to `findings/` — topic references, cross-collection notes, article summaries.
-This folder is gitignored. To share findings across devices, make it a symlink to a cloud folder:
+This folder is gitignored so personal research never enters the repository.
+
+---
+
+## AI assistant support
+
+Context files are included for all major AI coding assistants. When you open this project, your
+assistant reads its context file and is directed to `LIBRARIAN.md` automatically — no prompting needed.
+
+| Assistant | Context file |
+| --- | --- |
+| [Claude Code](https://claude.ai/code) | `CLAUDE.md` |
+| [OpenAI Codex CLI](https://github.com/openai/codex) | `AGENTS.md` |
+| [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) | `GEMINI.md` |
+| [GitHub Copilot](https://github.com/features/copilot) | `.github/copilot-instructions.md` |
+
+---
+
+## Sharing across devices
+
+The library corpus and research findings can be stored in cloud storage and symlinked into the project,
+making everything available across multiple machines without committing copyrighted content.
+
+### Store collections in the cloud
 
 ```bash
-# Example: link findings to a Dropbox folder
-ln -s ~/Dropbox/my-library-findings findings
+# Dropbox
+ln -s ~/Dropbox/my-library/collections collections
+
+# iCloud Drive
+ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/my-library/collections collections
+
+# Google Drive
+ln -s "~/Google Drive/My Drive/my-library/collections" collections
 ```
+
+Individual collection PDF folders can also be symlinked separately, leaving other collections local:
+
+```bash
+# Example: HE magazines in Dropbox, everything else local
+ln -s ~/Dropbox/magazines/hobby-electronics collections/hobby-electronics/pdfs
+```
+
+### Store findings in the cloud
+
+```bash
+# Dropbox
+ln -s ~/Dropbox/my-library/findings findings
+
+# iCloud Drive
+ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/my-library/findings findings
+
+# Google Drive
+ln -s "~/Google Drive/My Drive/my-library/findings" findings
+```
+
+Both `collections/*/pdfs`, `collections/*/indexed`, and `findings/` are gitignored, so symlinks
+to cloud folders work seamlessly with version control.
 
 ---
 
@@ -133,14 +184,14 @@ See [`CATALOGUE.md`](CATALOGUE.md) for all collections. Example collections test
 
 Click **Use this template** on GitHub to create your own library repository. The `collections/` PDFs
 and indexed output are excluded by `.gitignore`, but collection metadata (`COLLECTION.md` files) and
-research findings structure are tracked — so the shape of your library is preserved in version control.
+the project structure are tracked — so the shape of your library is preserved in version control.
 
 ---
 
 ## Contributing
 
 Bug reports and enhancement requests are welcome via
-[GitHub Issues](https://github.com/ali5ter/publication-archive/issues).
+[GitHub Issues](https://github.com/ali5ter/publication-library/issues).
 
 ---
 
