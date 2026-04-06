@@ -46,8 +46,8 @@ except ImportError:
 _SLUG_PATTERNS: list[tuple[str, re.Pattern]] = [
     # PublicationName-YYYY-MM[...].pdf  →  YYYY-MM
     ("year-month", re.compile(r".*?[_-](\d{4})[_-](\d{2})(?:[_-]|\.|$)", re.IGNORECASE)),
-    # Vol-N or V-N  →  vol-N
-    ("volume", re.compile(r"(?:Vol(?:ume)?|V)[_\-\.\s]?(\d+)", re.IGNORECASE)),
+    # Vol-N or Volume-N  →  vol-N  (bare V excluded: too ambiguous, e.g. _v2 meaning version 2)
+    ("volume", re.compile(r"(?:Vol(?:ume)?)[_\-\.\s]?(\d+)", re.IGNORECASE)),
     # No-N or Issue-N  →  no-N
     ("issue", re.compile(r"(?:No|Issue|Iss)[_\-\.\s]?(\d+)", re.IGNORECASE)),
     # Bare number anywhere in filename  →  NNN
