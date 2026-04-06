@@ -3,6 +3,8 @@ collections/*/pdfs
 collections/*/indexed
 
 # Research findings — personal, may be a cloud symlink
+# Both patterns needed: findings/ matches a directory, findings matches a symlink
+findings
 findings/
 
 # Instance-specific generated files

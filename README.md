@@ -132,41 +132,49 @@ assistant reads its context file and is directed to `LIBRARIAN.md` automatically
 The library corpus and research findings can be stored in cloud storage and symlinked into the project,
 making everything available across multiple machines without committing copyrighted content.
 
-### Store collections in the cloud
+Both `collections/*/pdfs`, `collections/*/indexed`, and `findings/` are gitignored, so symlinks
+to cloud folders work seamlessly with version control.
 
-```bash
-# Dropbox
-ln -s ~/Dropbox/my-library/collections collections
+### Recommended folder layout
 
-# iCloud Drive
-ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/my-library/collections collections
+A clean convention is to store each collection's PDFs in a named folder, and use `library-` prefixed
+folders for the derived library assets (indexed output and findings). For example, using Dropbox:
 
-# Google Drive
-ln -s "~/Google Drive/My Drive/my-library/collections" collections
+```text
+~/Dropbox/my-library/
+├── collection-a/          ← PDFs for collection A
+├── collection-b/          ← PDFs for collection B
+├── library-findings/      ← research findings (symlinked to findings/)
+└── library-indexed/       ← converted indexed output
+    ├── collection-a/      (symlinked to collections/collection-a/indexed)
+    └── collection-b/      (symlinked to collections/collection-b/indexed)
 ```
 
-Individual collection PDF folders can also be symlinked separately, leaving other collections local:
+The `library-` prefix distinguishes library infrastructure from per-collection PDF archives at a glance.
+
+### Symlink each collection
 
 ```bash
-# Example: HE magazines in Dropbox, everything else local
-ln -s ~/Dropbox/magazines/hobby-electronics collections/hobby-electronics/pdfs
+# PDF folder for a collection
+ln -s ~/Dropbox/my-library/collection-a collections/collection-a/pdfs
+
+# Indexed output for a collection
+mkdir -p ~/Dropbox/my-library/library-indexed/collection-a
+ln -s ~/Dropbox/my-library/library-indexed/collection-a collections/collection-a/indexed
 ```
 
 ### Store findings in the cloud
 
 ```bash
 # Dropbox
-ln -s ~/Dropbox/my-library/findings findings
+ln -s ~/Dropbox/my-library/library-findings findings
 
 # iCloud Drive
-ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/my-library/findings findings
+ln -s ~/Library/Mobile\ Documents/com~apple~CloudDocs/my-library/library-findings findings
 
 # Google Drive
-ln -s "~/Google Drive/My Drive/my-library/findings" findings
+ln -s "~/Google Drive/My Drive/my-library/library-findings" findings
 ```
-
-Both `collections/*/pdfs`, `collections/*/indexed`, and `findings/` are gitignored, so symlinks
-to cloud folders work seamlessly with version control.
 
 ---
 
