@@ -552,10 +552,10 @@ def write_global_index(collections_root: Path, output_path: Path) -> None:
             m = re.search(r"^# (.+)$", text, re.MULTILINE)
             if m:
                 name = m.group(1)
-            m = re.search(r"\|\s*Date range\s*\|\s*(.+?)\s*\|", text)
+            m = re.search(r"\|\s*\*\*Period\*\*\s*\|\s*(.+?)\s*\|", text)
             if m:
                 period = m.group(1).strip()
-            m = re.search(r"\|\s*Total pages\s*\|\s*([\d,]+)\s*\|", text)
+            m = re.search(r"\|\s*\*\*Pages\*\*\s*\|\s*([\d,]+)\s*\|", text)
             if m:
                 pages = m.group(1).strip()
 
