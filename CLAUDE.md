@@ -32,7 +32,8 @@ publication-library/
 ├── convert.py                    ← convert PDFs → markdown + page PNGs
 ├── search.py                     ← search across indexed collections with formatted output
 ├── init-findings.sh              ← scaffold the findings/ directory
-├── init-symlinks.sh              ← recreate cloud-storage symlinks (configure via .env)
+├── init-symlinks.sh              ← recreate cloud-storage symlinks (auto-derived from collections/)
+├── bootstrap.sh                  ← full reconstruction pipeline from a clean clone
 ├── .env.template                 ← configuration template (copy to .env and set LIBRARY_BASE)
 ├── README.md
 ├── CLAUDE.md                     ← this file
@@ -76,9 +77,11 @@ publication-library/
 # Scaffold findings/ directory
 ./init-findings.sh
 
-# Set up cloud-storage symlinks (first time or new machine)
+# Full reconstruction from a clean clone (downloads, converts, catalogues)
 cp .env.template .env   # then edit .env and set LIBRARY_BASE
-# Edit the LINKS array in init-symlinks.sh for your collection layout
+./bootstrap.sh
+
+# Restore symlinks only (LINKS auto-derived from collections/; override via .env)
 ./init-symlinks.sh
 
 # Download from an archive page

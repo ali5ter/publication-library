@@ -42,7 +42,8 @@ Python 3.10+. No other dependencies.
 | `convert.py` | Convert a folder of PDFs to searchable Markdown with page images |
 | `search.py` | Search across all indexed collections with grouped, formatted output |
 | `init-findings.sh` | Scaffold the `findings/` directory, with optional cloud storage symlink |
-| `init-symlinks.sh` | Recreate cloud-storage symlinks for PDFs, indexed output, and findings |
+| `init-symlinks.sh` | Recreate cloud-storage symlinks (auto-derived from `collections/`) |
+| `bootstrap.sh` | Full reconstruction pipeline: symlinks → download → convert → catalogue |
 
 ---
 
@@ -136,7 +137,7 @@ making everything available across multiple machines without committing copyrigh
 Both `collections/*/pdfs`, `collections/*/indexed`, and `findings/` are gitignored, so symlinks
 to cloud folders work seamlessly with version control.
 
-### Recommended folder layout
+### Recommended cloud folder layout
 
 A clean convention is to store each collection's PDFs in a named folder, and use `library-` prefixed
 folders for the derived library assets (indexed output and findings). For example, using Dropbox:
@@ -153,36 +154,42 @@ folders for the derived library assets (indexed output and findings). For exampl
 
 The `library-` prefix distinguishes library infrastructure from per-collection PDF archives at a glance.
 
-### Set up symlinks with init-symlinks.sh
+### One-command reconstruction with bootstrap.sh
 
-`init-symlinks.sh` automates symlink creation. Configure it once, then run it after every clone or
-on each new machine.
-
-**1. Set your library base path:**
+After cloning on a new machine, `bootstrap.sh` rebuilds the entire library in one step:
 
 ```bash
 cp .env.template .env
-# Edit .env and set LIBRARY_BASE to your cloud storage root, e.g.:
+# Edit .env — set LIBRARY_BASE to your cloud storage root, e.g.:
 # LIBRARY_BASE="${HOME}/Dropbox/my-library"
+
+./bootstrap.sh
 ```
 
-**2. Edit the `LINKS` array in `init-symlinks.sh`** to list your collections:
+This creates cloud directories, restores symlinks, downloads any missing PDFs (using the Source URL
+from each `COLLECTION.md`), converts them to searchable Markdown, and regenerates `CATALOGUE.md`.
+The script is idempotent — already-downloaded PDFs and already-converted output are skipped.
+
+### Symlinks only
+
+`init-symlinks.sh` restores symlinks without downloading or converting. Symlink targets are
+auto-derived from `collections/` using the naming convention above. To override, define a `LINKS`
+array in `.env`:
 
 ```bash
-declare -a LINKS=(
+# .env
+LINKS=(
     "findings:${LIBRARY_BASE}/library-findings"
     "collections/collection-a/pdfs:${LIBRARY_BASE}/collection-a"
     "collections/collection-a/indexed:${LIBRARY_BASE}/library-indexed/collection-a"
 )
 ```
 
-**3. Run it:**
+Then run:
 
 ```bash
 ./init-symlinks.sh
 ```
-
-The script is idempotent — safe to re-run; existing symlinks are skipped.
 
 ---
 
