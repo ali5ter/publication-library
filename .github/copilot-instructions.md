@@ -26,7 +26,16 @@ Read [`LIBRARIAN.md`](../LIBRARIAN.md) before navigating the collections. It exp
 ## Tools
 
 ```bash
+# Full reconstruction from a clean clone (configure .env first)
+./bootstrap.sh
+
+# Restore cloud-storage symlinks only
+./init-symlinks.sh
+
+# Download PDFs from an archive page
 python3 download.py "URL" --output-dir collections/NAME/pdfs
+
+# Convert PDFs to searchable Markdown
 python3 convert.py --input-dir collections/NAME/pdfs --output-dir collections/NAME/indexed
 ```
 

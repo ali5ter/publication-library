@@ -16,11 +16,17 @@
 #   LIBRARY_BASE  Absolute path to the root of your cloud-synced library storage.
 #                 See .env.template for examples.
 #
-# LINKS format: "local_path:cloud_target"
-#   Edit the LINKS array below to match your instance's collection layout.
-#   - findings         → flat directory in cloud storage
-#   - COLLECTION/pdfs  → per-collection PDF directory in cloud storage
-#   - COLLECTION/indexed → per-collection indexed output under library-indexed/
+# LINKS are auto-derived from collections/*/ using the naming convention:
+#   collections/NAME/pdfs    → ${LIBRARY_BASE}/NAME
+#   collections/NAME/indexed → ${LIBRARY_BASE}/library-indexed/NAME
+#   findings                 → ${LIBRARY_BASE}/library-findings
+#
+# To override, define a LINKS array in .env before running:
+#   LINKS=(
+#     "findings:${LIBRARY_BASE}/library-findings"
+#     "collections/NAME/pdfs:${LIBRARY_BASE}/NAME"
+#     "collections/NAME/indexed:${LIBRARY_BASE}/library-indexed/NAME"
+#   )
 
 set -euo pipefail
 
@@ -31,7 +37,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
-# Source .env if present (allows LIBRARY_BASE to be set there)
+# Source .env if present (allows LIBRARY_BASE and optional LINKS override to be set there)
 if [[ -f "${SCRIPT_DIR}/.env" ]]; then
     # shellcheck source=/dev/null
     source "${SCRIPT_DIR}/.env"
@@ -62,22 +68,25 @@ if [[ -z "${LIBRARY_BASE:-}" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Symlink definitions — edit to match your instance layout
+# Build LINKS — auto-derive from collections/*/ unless overridden in .env
 # ---------------------------------------------------------------------------
-# Format: "local_path:cloud_target"
-# local_path  — path relative to this script (e.g. findings, collections/NAME/pdfs)
-# cloud_target — absolute path under LIBRARY_BASE
-#
-# Example entries (uncomment and adapt):
-#
-#   "findings:${LIBRARY_BASE}/library-findings"
-#   "collections/my-collection/pdfs:${LIBRARY_BASE}/my-collection"
-#   "collections/my-collection/indexed:${LIBRARY_BASE}/library-indexed/my-collection"
 
-declare -a LINKS=(
-    # Add your symlink entries here. Example:
-    # "findings:${LIBRARY_BASE}/library-findings"
-)
+# @description Build the LINKS array from collections/*/ directories.
+# @side_effects Populates the global LINKS array.
+build_links() {
+    LINKS=()
+    LINKS+=("findings:${LIBRARY_BASE}/library-findings")
+    for col_dir in "${SCRIPT_DIR}/collections"/*/; do
+        [[ -d "${col_dir}" ]] || continue
+        name="$(basename "${col_dir}")"
+        LINKS+=("collections/${name}/pdfs:${LIBRARY_BASE}/${name}")
+        LINKS+=("collections/${name}/indexed:${LIBRARY_BASE}/library-indexed/${name}")
+    done
+}
+
+if [[ -z "${LINKS[*]+set}" ]] || [[ ${#LINKS[@]} -eq 0 ]]; then
+    build_links
+fi
 
 # ---------------------------------------------------------------------------
 # Main
@@ -88,7 +97,7 @@ pfb subheading "LIBRARY_BASE: ${LIBRARY_BASE}"
 echo
 
 if [[ ${#LINKS[@]} -eq 0 ]]; then
-    pfb warn "No symlinks defined. Edit the LINKS array in this script."
+    pfb warn "No collections found under collections/ and no LINKS defined in .env."
     exit 0
 fi
 
