@@ -37,7 +37,7 @@ def search_indexed(term: str, indexed_dir: Path, context: int) -> list[dict]:
     @param context: Lines of context around each match
     @return: List of dicts with keys: slug, line_num, content
     """
-    cmd = ["grep", "-rin", f"--include=content.md", f"-C{context}", term, str(indexed_dir)]
+    cmd = ["grep", "-rin", f"--include=content.md", f"-C{context}", term, str(indexed_dir) + "/"]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode not in (0, 1):
         print(f"  WARNING: grep error in {indexed_dir}: {result.stderr.strip()}", file=sys.stderr)
@@ -73,7 +73,7 @@ def files_matching(term: str, indexed_dir: Path) -> list[str]:
     @param indexed_dir: Path to the collection's indexed directory
     @return: Sorted list of unique publication slugs
     """
-    cmd = ["grep", "-ril", f"--include=content.md", term, str(indexed_dir)]
+    cmd = ["grep", "-ril", f"--include=content.md", term, str(indexed_dir) + "/"]
     result = subprocess.run(cmd, capture_output=True, text=True)
     slugs: set[str] = set()
     for path_str in result.stdout.splitlines():
