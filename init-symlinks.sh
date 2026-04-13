@@ -17,15 +17,15 @@
 #                 See .env.template for examples.
 #
 # LINKS are auto-derived from collections/*/ using the naming convention:
-#   collections/NAME/pdfs    → ${LIBRARY_BASE}/NAME
-#   collections/NAME/indexed → ${LIBRARY_BASE}/library-indexed/NAME
-#   findings                 → ${LIBRARY_BASE}/library-findings
+#   collections/NAME/pdfs    → ${LIBRARY_BASE}/collections/NAME/pdfs
+#   collections/NAME/indexed → ${LIBRARY_BASE}/collections/NAME/indexed
+#   findings                 → ${LIBRARY_BASE}/findings
 #
 # To override, define a LINKS array in .env before running:
 #   LINKS=(
-#     "findings:${LIBRARY_BASE}/library-findings"
-#     "collections/NAME/pdfs:${LIBRARY_BASE}/NAME"
-#     "collections/NAME/indexed:${LIBRARY_BASE}/library-indexed/NAME"
+#     "findings:${LIBRARY_BASE}/findings"
+#     "collections/NAME/pdfs:${LIBRARY_BASE}/collections/NAME/pdfs"
+#     "collections/NAME/indexed:${LIBRARY_BASE}/collections/NAME/indexed"
 #   )
 
 set -euo pipefail
@@ -75,12 +75,12 @@ fi
 # @side_effects Populates the global LINKS array.
 build_links() {
     LINKS=()
-    LINKS+=("findings:${LIBRARY_BASE}/library-findings")
+    LINKS+=("findings:${LIBRARY_BASE}/findings")
     for col_dir in "${SCRIPT_DIR}/collections"/*/; do
         [[ -d "${col_dir}" ]] || continue
         name="$(basename "${col_dir}")"
-        LINKS+=("collections/${name}/pdfs:${LIBRARY_BASE}/${name}")
-        LINKS+=("collections/${name}/indexed:${LIBRARY_BASE}/library-indexed/${name}")
+        LINKS+=("collections/${name}/pdfs:${LIBRARY_BASE}/collections/${name}/pdfs")
+        LINKS+=("collections/${name}/indexed:${LIBRARY_BASE}/collections/${name}/indexed")
     done
 }
 

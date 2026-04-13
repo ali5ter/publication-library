@@ -180,20 +180,22 @@ to cloud folders work seamlessly with version control.
 
 ### Recommended cloud folder layout
 
-A clean convention is to store each collection's PDFs in a named folder, and use `library-` prefixed
-folders for the derived library assets (indexed output and findings). For example, using Dropbox:
+The cloud storage layout mirrors the repo structure exactly. For example, using Dropbox:
 
 ```text
 ~/Dropbox/my-library/
-├── collection-a/          ← PDFs for collection A
-├── collection-b/          ← PDFs for collection B
-├── library-findings/      ← research findings (symlinked to findings/)
-└── library-indexed/       ← converted indexed output
-    ├── collection-a/      (symlinked to collections/collection-a/indexed)
-    └── collection-b/      (symlinked to collections/collection-b/indexed)
+├── findings/              ← research findings (symlinked to findings/)
+└── collections/
+    ├── collection-a/
+    │   ├── pdfs/          ← PDFs for collection A (symlinked to collections/collection-a/pdfs)
+    │   └── indexed/       ← converted output (symlinked to collections/collection-a/indexed)
+    └── collection-b/
+        ├── pdfs/
+        └── indexed/
 ```
 
-The `library-` prefix distinguishes library infrastructure from per-collection PDF archives at a glance.
+Mirroring the repo layout means relative links in `findings/*.md` resolve correctly when
+apps resolve symlinks to their real filesystem path.
 
 ### One-command reconstruction with bootstrap.sh
 
@@ -220,9 +222,9 @@ array in `.env`:
 ```bash
 # .env
 LINKS=(
-    "findings:${LIBRARY_BASE}/library-findings"
-    "collections/collection-a/pdfs:${LIBRARY_BASE}/collection-a"
-    "collections/collection-a/indexed:${LIBRARY_BASE}/library-indexed/collection-a"
+    "findings:${LIBRARY_BASE}/findings"
+    "collections/collection-a/pdfs:${LIBRARY_BASE}/collections/collection-a/pdfs"
+    "collections/collection-a/indexed:${LIBRARY_BASE}/collections/collection-a/indexed"
 )
 ```
 

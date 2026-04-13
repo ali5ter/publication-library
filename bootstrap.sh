@@ -90,16 +90,16 @@ parse_source_url() {
 pfb heading "Creating cloud-storage directories" "☁️"
 echo
 
-mkdir -p "${LIBRARY_BASE}/library-findings"
-pfb success "READY  ${LIBRARY_BASE}/library-findings"
+mkdir -p "${LIBRARY_BASE}/findings"
+pfb success "READY  ${LIBRARY_BASE}/findings"
 
 for col_dir in "${SCRIPT_DIR}/collections"/*/; do
     [[ -d "${col_dir}" ]] || continue
     name="$(basename "${col_dir}")"
-    mkdir -p "${LIBRARY_BASE}/${name}"
-    pfb success "READY  ${LIBRARY_BASE}/${name}"
-    mkdir -p "${LIBRARY_BASE}/library-indexed/${name}"
-    pfb success "READY  ${LIBRARY_BASE}/library-indexed/${name}"
+    mkdir -p "${LIBRARY_BASE}/collections/${name}/pdfs"
+    pfb success "READY  ${LIBRARY_BASE}/collections/${name}/pdfs"
+    mkdir -p "${LIBRARY_BASE}/collections/${name}/indexed"
+    pfb success "READY  ${LIBRARY_BASE}/collections/${name}/indexed"
 done
 
 echo
