@@ -27,10 +27,17 @@ so the shape of your library is version-controlled even if the contents are not.
 ## Requirements
 
 ```bash
-pip3 install pymupdf
+pip3 install -r requirements.txt
 ```
 
-Python 3.10+. No other dependencies.
+Or install individually:
+
+```bash
+pip3 install pymupdf          # required for convert.py
+pip3 install internetarchive  # required for archive.org downloads
+```
+
+Python 3.10+.
 
 ---
 
@@ -51,6 +58,10 @@ Python 3.10+. No other dependencies.
 
 ### 1. Download a collection
 
+The source is auto-detected from the URL. Both modes share `--output-dir`, `--delay`, and `--dry-run`.
+
+**World Radio History** — scrapes PDF links from an archive page:
+
 ```bash
 # Preview what would be downloaded
 python3 download.py "https://www.worldradiohistory.com/ETI_Magazine.htm" --dry-run
@@ -63,6 +74,36 @@ python3 download.py "https://www.worldradiohistory.com/ETI_Magazine.htm" \
 python3 download.py "https://www.worldradiohistory.com/ETI_Magazine.htm" \
   --filter "1970" --output-dir collections/eti/pdfs
 ```
+
+**archive.org** — downloads files from a single archive.org item by identifier.
+Each issue typically has two PDF variants: a plain image PDF and a `_text.pdf` with an
+Abbyy OCR text layer. The `--pdf-format` flag controls which variant is downloaded
+(`text` is the default since `convert.py` extracts from the OCR layer):
+
+```bash
+# Download all OCR PDFs from an archive.org item
+python3 download.py "https://archive.org/details/ElektorMagazine" \
+  --output-dir collections/elektor/pdfs
+
+# Download only issues from a specific decade
+python3 download.py "https://archive.org/details/ElektorMagazine" \
+  --output-dir collections/elektor/pdfs \
+  --year-from 1974 --year-to 1989
+
+# Download image-only PDFs (no OCR layer)
+python3 download.py "https://archive.org/details/ElektorMagazine" \
+  --pdf-format image --output-dir collections/elektor/pdfs
+
+# Preview without downloading
+python3 download.py "https://archive.org/details/ElektorMagazine" \
+  --year-from 1980 --dry-run
+```
+
+| Flag | Description | Default |
+| --- | --- | --- |
+| `--pdf-format` | `text` (_text.pdf, OCR), `image` (plain PDF), `both` | `text` |
+| `--year-from` | Only download files with a year >= this value | — |
+| `--year-to` | Only download files with a year <= this value | — |
 
 ### 2. Probe the collection structure
 
