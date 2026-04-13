@@ -581,7 +581,7 @@ def main() -> None:
         description="Convert archive PDFs (magazines, books) to searchable Markdown"
     )
     parser.add_argument("--analyze", action="store_true", help="Probe PDFs and report structure without converting")
-    parser.add_argument("--input-dir", type=Path, required=True, help="Source PDF directory")
+    parser.add_argument("--input-dir", type=Path, required=False, default=None, help="Source PDF directory")
     parser.add_argument("--output-dir", type=Path, default=Path("converted"), help="Output directory (default: ./converted)")
     parser.add_argument("--pattern", default="**/*.pdf", help="Glob pattern to select PDFs (default: **/*.pdf)")
     parser.add_argument("--dpi", type=int, default=200, help="Page image render DPI (default: 200)")
@@ -603,6 +603,9 @@ def main() -> None:
         output_path = Path("CATALOGUE.md")
         write_global_index(args.global_index, output_path)
         return
+
+    if not args.input_dir:
+        parser.error("--input-dir is required unless --global-index is specified")
 
     if not args.input_dir.exists():
         print(f"ERROR: Input directory not found: {args.input_dir}")
