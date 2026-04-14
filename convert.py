@@ -552,10 +552,10 @@ def write_global_index(collections_root: Path, output_path: Path) -> None:
             m = re.search(r"^# (.+)$", text, re.MULTILINE)
             if m:
                 name = m.group(1)
-            m = re.search(r"\|\s*\*\*Period\*\*\s*\|\s*(.+?)\s*\|", text)
+            m = re.search(r"\|\s*(?:\*\*Period\*\*|Date range)\s*\|\s*(.+?)\s*\|", text)
             if m:
                 period = m.group(1).strip()
-            m = re.search(r"\|\s*\*\*Pages\*\*\s*\|\s*(~?[\d,]+)\s*\|", text)
+            m = re.search(r"\|\s*(?:\*\*Pages\*\*|Total pages)\s*\|\s*(~?[\d,]+)\s*\|", text)
             if m:
                 pages = m.group(1).strip()
 
@@ -634,7 +634,11 @@ def main() -> None:
         base_slug, _ = parse_slug(pdf_path.name)
         resolved = slug_map[pdf_path]
         override = resolved if resolved != base_slug else None
-        info = convert_publication(pdf_path, args.output_dir, args.dpi, args.force, slug_override=override)
+        try:
+            info = convert_publication(pdf_path, args.output_dir, args.dpi, args.force, slug_override=override)
+        except Exception as exc:
+            print(f"  WARNING: skipping {pdf_path.name} — {exc}")
+            continue
         if info.get("slug"):
             write_publication_index(info, args.output_dir)
             all_pubs.append(info)
