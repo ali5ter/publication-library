@@ -1,28 +1,33 @@
 #!/usr/bin/env python3
-"""
-Convert magazine/book PDFs from World Radio History (or similar archives) to
-searchable Markdown with rendered page images.
+"""Convert magazine/book PDFs to searchable Markdown with rendered page images.
 
 Extracts OCR text and renders each page as a PNG, producing per-publication
 markdown files that embed page images alongside the extracted text. A master
 index links all publications.
 
 Usage:
-    # Probe a directory to understand PDF structure before converting
     python3 convert.py --analyze [--input-dir DIR]
-
-    # Convert all PDFs in a directory
     python3 convert.py [--input-dir DIR] [--output-dir DIR] [--dpi DPI] [--force]
+    python3 convert.py --global-index COLLECTIONS_ROOT
 
 Args:
-    --analyze     Probe PDFs and report structure without converting
-    --input-dir   Directory containing PDFs (required)
-    --output-dir  Output directory for markdown and images (default: ./converted)
-    --pattern     Glob pattern to select PDFs (default: **/*.pdf)
-    --dpi         Render resolution for page images (default: 200)
-    --force       Re-process publications even if output already exists
+    --analyze              Probe PDFs and report structure without converting
+    --input-dir            Directory containing PDFs
+    --output-dir           Output directory for markdown and images (default: ./converted)
+    --pattern              Glob pattern to select PDFs (default: **/*.pdf)
+    --dpi                  Render resolution for page images (default: 200)
+    --force                Re-process publications even if output already exists
     --write-collection-md  Auto-generate COLLECTION.md alongside the output directory
-    --global-index ROOT    Generate CATALOGUE.md from all collections under ROOT (standalone mode)
+    --global-index ROOT    Generate CATALOGUE.md from all collections under ROOT
+
+Author: Alister Lewis-Bowen <alister@lewis-bowen.org>
+Version: 1.0.0
+Date: 2026-04-04
+License: MIT
+Dependencies: pymupdf (fitz)
+Exit codes:
+    0: Success
+    1: Error (missing dependency, invalid arguments, or input not found)
 """
 
 import argparse
@@ -67,9 +72,13 @@ def parse_slug(filename: str) -> tuple[str, str]:
     Tries date, volume, issue, and bare-number patterns in order, falling back
     to a cleaned version of the filename stem.
 
-    @param filename: PDF filename (basename only)
-    @return: (slug, label) e.g. ("1979-01", "January 1979") or ("vol-3", "Vol. 3")
-    @example:
+    Args:
+        filename: PDF filename (basename only).
+
+    Returns:
+        Tuple of (slug, label), e.g. ("1979-01", "January 1979") or ("vol-3", "Vol. 3").
+
+    Example:
         parse_slug("Hobby-Electronics-1979-01-S-OCR.pdf")  # ("1979-01", "January 1979")
         parse_slug("Bernards-Babani-BP042.pdf")             # ("BP042", "BP042")
     """
@@ -109,9 +118,13 @@ def resolve_slugs(pdfs: list[Path]) -> dict[Path, str]:
     When multiple PDFs resolve to the same slug, appends the parent directory
     name to each slug to make them unique.
 
-    @param pdfs: List of PDF paths to map
-    @return: Dict mapping each PDF path to its unique slug
-    @example:
+    Args:
+        pdfs: List of PDF paths to map.
+
+    Returns:
+        Dict mapping each PDF path to its unique slug.
+
+    Example:
         # 70s/ETI-1985-08.pdf and 80s/ETI-1985-08.pdf both parse to "1985-08"
         # resolve_slugs returns {70s/...: "1985-08-70s", 80s/...: "1985-08-80s"}
     """
@@ -143,9 +156,13 @@ def infer_publication_name(stem: str) -> str:
 
     Strips trailing date/number/OCR artefacts, converts hyphens to spaces.
 
-    @param stem: Filename without extension
-    @return: Human-readable publication name guess
-    @example:
+    Args:
+        stem: Filename without extension.
+
+    Returns:
+        Human-readable publication name guess.
+
+    Example:
         infer_publication_name("Hobby-Electronics-1979-01-S-OCR")  # "Hobby Electronics"
         infer_publication_name("Practical-Wireless-1965-03")       # "Practical Wireless"
     """
@@ -164,8 +181,11 @@ def infer_publication_name(stem: str) -> str:
 def probe_pdf(pdf_path: Path) -> dict:
     """Gather structural information about a PDF without converting it.
 
-    @param pdf_path: Path to the PDF file
-    @return: Dict with keys: filename, pages, has_text, image_pages, text_sample, slug, label
+    Args:
+        pdf_path: Path to the PDF file.
+
+    Returns:
+        Dict with keys: filename, pages, has_text, image_pages, text_sample, slug, label.
     """
     try:
         doc = fitz.open(str(pdf_path))
@@ -208,8 +228,9 @@ def probe_pdf(pdf_path: Path) -> dict:
 def analyze_directory(input_dir: Path, pattern: str) -> None:
     """Print a structural report for all PDFs in a directory.
 
-    @param input_dir: Directory to scan
-    @param pattern: Glob pattern to filter files
+    Args:
+        input_dir: Directory to scan.
+        pattern: Glob pattern to filter files.
     """
     pdfs = sorted(input_dir.glob(pattern))
     if not pdfs:
@@ -278,8 +299,11 @@ def analyze_directory(input_dir: Path, pattern: str) -> None:
 def clean_text(text: str) -> str:
     """Normalise OCR text for markdown output.
 
-    @param text: Raw OCR text from a PDF page
-    @return: Cleaned text suitable for markdown
+    Args:
+        text: Raw OCR text from a PDF page.
+
+    Returns:
+        Cleaned text suitable for markdown.
     """
     text = re.sub(r"\n{3,}", "\n\n", text)
     lines = [line.rstrip() for line in text.splitlines()]
@@ -289,9 +313,10 @@ def clean_text(text: str) -> str:
 def render_page_png(page: fitz.Page, output_path: Path, dpi: int) -> None:
     """Render a PDF page to a PNG file.
 
-    @param page: PyMuPDF page object
-    @param output_path: Destination PNG path
-    @param dpi: Render resolution in dots per inch
+    Args:
+        page: PyMuPDF page object.
+        output_path: Destination PNG path.
+        dpi: Render resolution in dots per inch.
     """
     matrix = fitz.Matrix(dpi / 72, dpi / 72)
     pixmap = page.get_pixmap(matrix=matrix, colorspace=fitz.csRGB)
@@ -301,12 +326,15 @@ def render_page_png(page: fitz.Page, output_path: Path, dpi: int) -> None:
 def convert_publication(pdf_path: Path, output_dir: Path, dpi: int, force: bool, slug_override: str | None = None) -> dict:
     """Convert a single PDF to markdown with rendered page images.
 
-    @param pdf_path: Path to the source PDF
-    @param output_dir: Root output directory
-    @param dpi: Page render resolution
-    @param force: Re-process even if output exists
-    @param slug_override: Optional pre-resolved slug (used when collision disambiguation is applied)
-    @return: Dict with slug, title, pages, articles for index building
+    Args:
+        pdf_path: Path to the source PDF.
+        output_dir: Root output directory.
+        dpi: Page render resolution.
+        force: Re-process even if output exists.
+        slug_override: Optional pre-resolved slug (used when collision disambiguation is applied).
+
+    Returns:
+        Dict with slug, title, pages, articles for index building.
     """
     slug, label = parse_slug(pdf_path.name)
     if slug_override is not None:
@@ -380,8 +408,9 @@ def convert_publication(pdf_path: Path, output_dir: Path, dpi: int, force: bool,
 def write_publication_index(info: dict, output_dir: Path) -> None:
     """Write a concise index.md for a single publication.
 
-    @param info: Dict from convert_publication()
-    @param output_dir: Root output directory
+    Args:
+        info: Dict from convert_publication().
+        output_dir: Root output directory.
     """
     pub_dir = output_dir / info["slug"]
     lines = [
@@ -403,8 +432,9 @@ def write_publication_index(info: dict, output_dir: Path) -> None:
 def write_master_index(all_publications: list[dict], output_dir: Path) -> None:
     """Write the master index.md linking all converted publications.
 
-    @param all_publications: List of info dicts from convert_publication()
-    @param output_dir: Root output directory
+    Args:
+        all_publications: List of info dicts from convert_publication().
+        output_dir: Root output directory.
     """
     lines = [
         "# Magazine / Book Archive",
@@ -453,9 +483,10 @@ def write_collection_md(output_dir: Path, all_publications: list[dict], input_di
     Writes to output_dir.parent/COLLECTION.md. Existing files are not overwritten
     unless the user removes them manually; this function skips if the file exists.
 
-    @param output_dir: Indexed output directory (e.g. collections/NAME/indexed)
-    @param all_publications: List of publication info dicts from convert_publication()
-    @param input_dir: Source PDF directory
+    Args:
+        output_dir: Indexed output directory (e.g. collections/NAME/indexed).
+        all_publications: List of publication info dicts from convert_publication().
+        input_dir: Source PDF directory.
     """
     dest = output_dir.parent / "COLLECTION.md"
     if dest.exists():
@@ -521,8 +552,9 @@ def write_global_index(collections_root: Path, output_path: Path) -> None:
     Scans each subdirectory of collections_root for an indexed/ subdirectory
     and an optional COLLECTION.md, then writes a markdown table to output_path.
 
-    @param collections_root: Root directory containing collection subdirectories
-    @param output_path: Destination file path for the generated index
+    Args:
+        collections_root: Root directory containing collection subdirectories.
+        output_path: Destination file path for the generated index.
     """
     lines = [
         "# Library Catalogue",

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Download magazine PDFs from a World Radio History archive page or an archive.org item.
+"""Download magazine PDFs from a World Radio History archive page or an archive.org item.
 
 Source is auto-detected from the URL:
   - archive.org/details/... → archive.org item download (requires internetarchive)
@@ -40,6 +39,13 @@ Examples:
         --pdf-format both --dry-run
 
 Author: Alister Lewis-Bowen <alister@lewis-bowen.org>
+Version: 1.0.0
+Date: 2026-04-04
+License: MIT
+Dependencies: internetarchive (optional, for archive.org downloads)
+Exit codes:
+    0: Success
+    1: Error (invalid URL, download failure, or missing dependency)
 """
 
 import argparse
@@ -66,9 +72,12 @@ HEADERS = {
 def download_file(url: str, dest: Path) -> bool:
     """Download a single file, returning True on success.
 
-    @param url: URL to download
-    @param dest: Local destination path
-    @return: True if downloaded, False if skipped (already exists)
+    Args:
+        url: URL to download.
+        dest: Local destination path.
+
+    Returns:
+        True if downloaded, False if skipped (already exists).
     """
     if dest.exists():
         return False
@@ -92,8 +101,11 @@ def download_file(url: str, dest: Path) -> bool:
 def format_size(path: Path) -> str:
     """Format a file's size as a human-readable string.
 
-    @param path: Path to an existing file
-    @return: Human-readable size string, e.g. "4.2 MB"
+    Args:
+        path: Path to an existing file.
+
+    Returns:
+        Human-readable size string, e.g. "4.2 MB".
     """
     size = path.stat().st_size
     for unit in ("B", "KB", "MB", "GB"):
@@ -106,8 +118,11 @@ def format_size(path: Path) -> str:
 def format_size_bytes(size_bytes: int | None) -> str:
     """Format a byte count as a human-readable string.
 
-    @param size_bytes: File size in bytes, or None if unknown
-    @return: Human-readable size string
+    Args:
+        size_bytes: File size in bytes, or None if unknown.
+
+    Returns:
+        Human-readable size string.
     """
     if size_bytes is None:
         return "? B"
@@ -122,8 +137,11 @@ def format_size_bytes(size_bytes: int | None) -> str:
 def extract_year(filename: str) -> int | None:
     """Extract the first four-digit year from a filename.
 
-    @param filename: File name to search
-    @return: Year as int, or None if not found
+    Args:
+        filename: File name to search.
+
+    Returns:
+        Year as int, or None if not found.
     """
     m = re.search(r"(\d{4})", filename)
     return int(m.group(1)) if m else None
@@ -136,8 +154,11 @@ def extract_year(filename: str) -> int | None:
 def fetch_page(url: str) -> str:
     """Fetch a web page and return its HTML content.
 
-    @param url: Page URL to fetch
-    @return: HTML content as string
+    Args:
+        url: Page URL to fetch.
+
+    Returns:
+        HTML content as string.
     """
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=30) as resp:
@@ -147,9 +168,12 @@ def fetch_page(url: str) -> str:
 def extract_pdf_links(html: str, base_url: str) -> list[str]:
     """Extract all PDF hrefs from a page and resolve them to absolute URLs.
 
-    @param html: Raw HTML content
-    @param base_url: Base URL of the page for resolving relative links
-    @return: Sorted list of absolute PDF URLs
+    Args:
+        html: Raw HTML content.
+        base_url: Base URL of the page for resolving relative links.
+
+    Returns:
+        Sorted list of absolute PDF URLs.
     """
     hrefs = re.findall(r'href="([^"]*\.pdf)"', html, re.IGNORECASE)
     absolute = set()
@@ -165,10 +189,13 @@ def extract_pdf_links(html: str, base_url: str) -> list[str]:
 def url_to_local_path(pdf_url: str, output_dir: Path, base_url: str) -> Path:
     """Convert a PDF URL to a local file path, preserving subdirectory structure.
 
-    @param pdf_url: Absolute URL of the PDF
-    @param output_dir: Root local download directory
-    @param base_url: Base URL of the archive page (used to strip the hostname prefix)
-    @return: Local Path where the file should be saved
+    Args:
+        pdf_url: Absolute URL of the PDF.
+        output_dir: Root local download directory.
+        base_url: Base URL of the archive page (used to strip the hostname prefix).
+
+    Returns:
+        Local Path where the file should be saved.
     """
     parsed = urllib.parse.urlparse(pdf_url)
     rel_path = parsed.path.lstrip("/")
@@ -179,7 +206,8 @@ def url_to_local_path(pdf_url: str, output_dir: Path, base_url: str) -> Path:
 def run_worldradiohistory(args: argparse.Namespace) -> None:
     """Download PDFs from a World Radio History archive page.
 
-    @param args: Parsed command-line arguments
+    Args:
+        args: Parsed command-line arguments.
     """
     print(f"Fetching index: {args.url}")
     try:
@@ -241,9 +269,14 @@ def run_worldradiohistory(args: argparse.Namespace) -> None:
 def get_archive_org_item_id(url: str) -> str:
     """Extract the archive.org item identifier from a /details/ URL.
 
-    @param url: archive.org URL containing /details/<identifier>
-    @return: Item identifier string
-    @example: "https://archive.org/details/ElektorMagazine" → "ElektorMagazine"
+    Args:
+        url: archive.org URL containing /details/<identifier>.
+
+    Returns:
+        Item identifier string.
+
+    Example:
+        "https://archive.org/details/ElektorMagazine" → "ElektorMagazine"
     """
     parsed = urllib.parse.urlparse(url)
     parts = [p for p in parsed.path.split("/") if p]
@@ -258,11 +291,14 @@ def get_archive_org_item_id(url: str) -> str:
 def select_archive_files(files: list, pdf_format: str, year_from: int | None, year_to: int | None) -> list:
     """Filter archive.org file list by PDF format and optional year range.
 
-    @param files: List of internetarchive File objects
-    @param pdf_format: One of "text", "image", or "both"
-    @param year_from: Lower year bound (inclusive), or None
-    @param year_to: Upper year bound (inclusive), or None
-    @return: Filtered and sorted list of File objects
+    Args:
+        files: List of internetarchive File objects.
+        pdf_format: One of "text", "image", or "both".
+        year_from: Lower year bound (inclusive), or None.
+        year_to: Upper year bound (inclusive), or None.
+
+    Returns:
+        Filtered and sorted list of File objects.
     """
     # Keep only PDFs
     selected = [f for f in files if f.name.lower().endswith(".pdf")]
@@ -295,7 +331,8 @@ def select_archive_files(files: list, pdf_format: str, year_from: int | None, ye
 def run_archive_org(args: argparse.Namespace) -> None:
     """Download PDFs from an archive.org item.
 
-    @param args: Parsed command-line arguments
+    Args:
+        args: Parsed command-line arguments.
     """
     try:
         import internetarchive as ia

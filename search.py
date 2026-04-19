@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Search across indexed library collections and display formatted results.
+"""Search across indexed library collections and display formatted results.
 
 Wraps grep to provide structured output grouped by publication. Results show
 the collection name, publication slug, and matching lines with context.
@@ -20,6 +19,15 @@ Examples:
     python3 search.py "VCA" --collection eti
     python3 search.py synthesiser --files-only
     python3 search.py "guitar" --context 3
+
+Author: Alister Lewis-Bowen <alister@lewis-bowen.org>
+Version: 1.0.0
+Date: 2026-04-05
+License: MIT
+Dependencies: grep (system)
+Exit codes:
+    0: Success
+    1: Error (collections directory not found, or no matches)
 """
 
 import argparse
@@ -32,10 +40,13 @@ from pathlib import Path
 def search_indexed(term: str, indexed_dir: Path, context: int) -> list[dict]:
     """Search a collection's content.md files for a term.
 
-    @param term: Search term (case-insensitive)
-    @param indexed_dir: Path to the collection's indexed directory
-    @param context: Lines of context around each match
-    @return: List of dicts with keys: slug, line_num, content
+    Args:
+        term: Search term (case-insensitive).
+        indexed_dir: Path to the collection's indexed directory.
+        context: Lines of context around each match.
+
+    Returns:
+        List of dicts with keys: slug, line_num, content.
     """
     cmd = ["grep", "-rin", f"--include=content.md", f"-C{context}", term, str(indexed_dir) + "/"]
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -69,9 +80,12 @@ def search_indexed(term: str, indexed_dir: Path, context: int) -> list[dict]:
 def files_matching(term: str, indexed_dir: Path) -> list[str]:
     """Return a sorted list of publication slugs containing the term.
 
-    @param term: Search term (case-insensitive)
-    @param indexed_dir: Path to the collection's indexed directory
-    @return: Sorted list of unique publication slugs
+    Args:
+        term: Search term (case-insensitive).
+        indexed_dir: Path to the collection's indexed directory.
+
+    Returns:
+        Sorted list of unique publication slugs.
     """
     cmd = ["grep", "-ril", f"--include=content.md", term, str(indexed_dir) + "/"]
     result = subprocess.run(cmd, capture_output=True, text=True)
@@ -89,8 +103,11 @@ def files_matching(term: str, indexed_dir: Path) -> list[str]:
 def group_by_slug(matches: list[dict]) -> dict[str, list[dict]]:
     """Group a flat list of match dicts by publication slug.
 
-    @param matches: List of match dicts from search_indexed()
-    @return: Dict mapping slug to list of its matches
+    Args:
+        matches: List of match dicts from search_indexed().
+
+    Returns:
+        Dict mapping slug to list of its matches.
     """
     groups: dict[str, list[dict]] = {}
     for m in matches:
