@@ -23,8 +23,6 @@ publication-library/
 │       ├── pdfs/                 ← source PDFs (gitignored; may be a symlink to cloud storage)
 │       └── indexed/              ← converted output (gitignored)
 ├── findings/                     ← personal research outputs (gitignored)
-├── lib/
-│   └── pfb/                      ← pretty-feedback terminal output library (submodule)
 ├── LIBRARIAN.md                  ← AI orientation guide (read this first)
 ├── CATALOGUE.md                  ← master cross-collection index (local instance, generated)
 ├── COLLECTION.md.example         ← template for writing COLLECTION.md files

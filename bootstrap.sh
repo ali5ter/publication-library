@@ -3,18 +3,17 @@
 #
 # Reconstructs the complete library from a clean clone:
 #   1. Validates configuration (.env, LIBRARY_BASE)
-#   2. Initialises the lib/pfb submodule if needed
-#   3. Creates cloud-storage directories for each collection
-#   4. Runs init-symlinks.sh to restore local symlinks
-#   5. Downloads PDFs for each collection (skips if already present)
-#   6. Converts PDFs to searchable Markdown (skips if already done)
-#   7. Regenerates the cross-collection CATALOGUE.md
+#   2. Creates cloud-storage directories for each collection
+#   3. Runs init-symlinks.sh to restore local symlinks
+#   4. Downloads PDFs for each collection (skips if already present)
+#   5. Converts PDFs to searchable Markdown (skips if already done)
+#   6. Regenerates the cross-collection CATALOGUE.md
 #
 # Name:         bootstrap.sh
 # Description:  Full reconstruction pipeline for a publication-library instance
 # Author:       Alister Lewis-Bowen <alister@lewis-bowen.org>
 # Usage:        ./bootstrap.sh
-# Dependencies: bash 4+, python3, pymupdf, git, lib/pfb submodule
+# Dependencies: bash 4+, python3, pymupdf, git, pfb
 # Exit codes:   0 success, 1 error
 #
 # Configuration (via .env or environment):
@@ -36,15 +35,11 @@ if [[ -f "${SCRIPT_DIR}/.env" ]]; then
     source "${SCRIPT_DIR}/.env"
 fi
 
-# Initialise lib/pfb submodule if not already done
-if [[ ! -f "${SCRIPT_DIR}/lib/pfb/pfb.sh" ]]; then
-    echo "Initialising lib/pfb submodule..."
-    git submodule update --init lib/pfb
+# Require pfb for terminal output
+if ! command -v pfb &>/dev/null; then
+    echo "ERROR: pfb is required but not found. Install it from https://github.com/ali5ter/pfb" >&2
+    exit 1
 fi
-
-# Load pfb for terminal output
-# shellcheck source=lib/pfb/pfb.sh
-source "${SCRIPT_DIR}/lib/pfb/pfb.sh"
 
 # ---------------------------------------------------------------------------
 # Validate required configuration

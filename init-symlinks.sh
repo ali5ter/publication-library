@@ -9,7 +9,7 @@
 # Description:  Recreate cloud-storage symlinks for a publication-library instance
 # Author:       Alister Lewis-Bowen <alister@lewis-bowen.org>
 # Usage:        ./init-symlinks.sh
-# Dependencies: bash 4+, lib/pfb submodule (or pfb on PATH)
+# Dependencies: bash 4+, pfb
 # Exit codes:   0 success, 1 error
 #
 # Configuration (via .env or environment):
@@ -43,15 +43,9 @@ if [[ -f "${SCRIPT_DIR}/.env" ]]; then
     source "${SCRIPT_DIR}/.env"
 fi
 
-# Load pfb for terminal output
-PFB_SCRIPT="${SCRIPT_DIR}/lib/pfb/pfb.sh"
-if [[ -f "${PFB_SCRIPT}" ]]; then
-    # shellcheck source=lib/pfb/pfb.sh
-    source "${PFB_SCRIPT}"
-elif command -v pfb &>/dev/null; then
-    : # pfb already on PATH
-else
-    echo "ERROR: pfb not found. Run: git submodule update --init lib/pfb" >&2
+# Require pfb for terminal output
+if ! command -v pfb &>/dev/null; then
+    echo "ERROR: pfb is required but not found. Install it from https://github.com/ali5ter/pfb" >&2
     exit 1
 fi
 

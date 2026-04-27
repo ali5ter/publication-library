@@ -20,15 +20,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FINDINGS_DIR="${SCRIPT_DIR}/findings"
 CLOUD_TYPE="${1:-}"
 
-# Load pfb for terminal output
-PFB_SCRIPT="${SCRIPT_DIR}/lib/pfb/pfb.sh"
-if [[ -f "${PFB_SCRIPT}" ]]; then
-    # shellcheck source=lib/pfb/pfb.sh
-    source "${PFB_SCRIPT}"
-elif command -v pfb &>/dev/null; then
-    : # pfb already on PATH
-else
-    echo "ERROR: pfb not found. Run: git submodule update --init lib/pfb" >&2
+# Require pfb for terminal output
+if ! command -v pfb &>/dev/null; then
+    echo "ERROR: pfb is required but not found. Install it from https://github.com/ali5ter/pfb" >&2
     exit 1
 fi
 
