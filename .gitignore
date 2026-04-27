@@ -21,3 +21,6 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+CLAUDE.md
+AGENTS.md
+GEMINI.md
